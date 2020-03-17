@@ -33,6 +33,7 @@ The initial purpose was to inform us in the chat every morning which classroom w
   Due to the alarming development of the COVID19 virus, a feature was implemented using a free API listed below, for retrieving data about the infections, mortalities and recoveries around the world. 
   
 * Ranking
+
   Rank one another up or down, just for goofing around really.
 
 ## Mentions
