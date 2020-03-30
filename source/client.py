@@ -41,21 +41,13 @@ class RobBotClient(discord.Client):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.loop.create_task(self.run_scheduler(self.automessage_channel))
+        self.loop.create_task(self.run_scheduler())
         self._guild = kwargs['DISCORD_GUILD']
-        self._scheduler = schedule.Scheduler()
+        self._scheduler = Scheduler()
                         
     @property
     def scheduler(self):
         return self._scheduler
-
-    @property
-    def automessage_channel(self):
-        return self._automessage_channel
-
-    @automessage_channel.setter
-    def automessage_channel(self, val: int):
-        self._automessage_channel = val    
 
     @logger
     async def on_ready(self) -> None:
@@ -93,13 +85,12 @@ class RobBotClient(discord.Client):
         """
 
         await client.wait_until_ready()
-        channel = self.get_channel(channel)
-        
-        while not self.is_closed():            
+
+        while not self.is_closed(): 
             result = self.scheduler.run_pending(passthrough = True)
-            if result: 
-                for _, value in result.items():
-                    if value: await channel.send(value)
+
+            if not result: #or datetime.now().hour >= 22 or datetime.now().hour < 8:
+                await asyncio.sleep(0.1)
             await asyncio.sleep(0.1)
    
 
