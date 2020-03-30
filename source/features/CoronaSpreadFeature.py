@@ -1,17 +1,17 @@
 import discord
-import commandintegrator as fw
+import CommandIntegrator as ci
 import fake_useragent
 import coronafeatureclient as coronafeatureclient
-from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from commandintegrator.logger import logger
+from CommandIntegrator.enumerators import CommandPronoun
+from CommandIntegrator.logger import logger
 
 
-class CoronaSpreadFeatureCommandParser(fw.FeatureCommandParserBase):
+class CoronaSpreadFeatureCommandParser(ci.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class CoronaSpreadFeature(fw.FeatureBase):
+class CoronaSpreadFeature(ci.FeatureBase):
 
     FEATURE_KEYWORDS = (
         'land',
