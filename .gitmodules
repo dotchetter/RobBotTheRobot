@@ -1,9 +1,7 @@
-[submodule "source/commandintegrator"]
-	path = source/commandintegrator
-	url = https://github.com/dotchetter/commandintegrator.git
 [submodule "source/schedule"]
 	path = source/schedule
 	url = https://github.com/dotchetter/schedule
-[submodule "source/--force"]
-	path = source/--force
+
+[submodule "CommandIntegrator"]
+	path = CommandIntegrator
 	url = https://github.com/dotchetter/CommandIntegrator.git
