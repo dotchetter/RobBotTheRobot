@@ -17,8 +17,8 @@ from features.RedditJokeFeature import RedditJokeFeature
 from features.ScheduleFeature import ScheduleFeature
 from features.CoronaSpreadFeature import CoronaSpreadFeature
 from features.RankingMembersFeature import RankingMembersFeature
-from commandintegrator.logger import logger
-from commandintegrator import CommandProcessor, PronounLookupTable, PollCache
+from CommandIntegrator.logger import logger
+from CommandIntegrator import CommandProcessor, PronounLookupTable, PollCache
 
 """
 Details:
