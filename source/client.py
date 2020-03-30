@@ -91,7 +91,29 @@ class RobBotClient(discord.Client):
 
             if not result: #or datetime.now().hour >= 22 or datetime.now().hour < 8:
                 await asyncio.sleep(0.1)
+                continue
+            
+            for _, method_return in result.items():
+                if not method_return:
+                    continue
+                if isinstance(method_return, dict):
+                    channel = method_return['channel']
+                    message = method_return['result']
+                    channel = self.get_channel(channel)
+                    if message:
+                        await channel.send(message)
+                else:
+                    channel = self.get_channel(self.default_autochannel)
+                    await channel.send(method_return)
             await asyncio.sleep(0.1)
+
+    @property
+    def default_autochannel(self):
+        return self._default_autochannel
+
+    @default_autochannel.setter
+    def default_autochannel(self, value):
+        self._default_autochannel = value
    
 
 def load_environment(env_var_strings: list) -> dict:
