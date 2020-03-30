@@ -228,15 +228,19 @@ if __name__ == '__main__':
     swe_deaths_request.content = 'hur många har omkommit i sverige'.split(' ')
     
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request)
+        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request,
+        channel = 694293924138844160
+    )
 
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request)
+        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request,
+        channel = 694293951938822235
+    )
 
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request)
-
+        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request,
+        channel = 694293935392292864
+    )
 
     # --- Turn the key and start the bot ---
-
     client.run(environment_vars['DISCORD_TOKEN'])
