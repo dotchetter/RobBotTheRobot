@@ -200,7 +200,6 @@ if __name__ == '__main__':
     
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
     """
-
     @dataclass
     class message_mock:
         content: list
