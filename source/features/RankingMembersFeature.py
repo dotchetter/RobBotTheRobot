@@ -1,64 +1,47 @@
 import discord
 import os
-import commandintegrator as fw
-from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from commandintegrator.logger import logger
+import CommandIntegrator as ci
+from CommandIntegrator.enumerators import CommandPronoun
+from CommandIntegrator.logger import logger
 
-class RankingMembersFeatureCommandParser(fw.FeatureCommandParserBase):
+class RankingMembersFeatureCommandParser(ci.FeatureCommandParserBase):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-class RankingMembersFeature(fw.FeatureBase):
+class RankingMembersFeature(ci.FeatureBase):
 
 	FEATURE_KEYWORDS = (
 		'rank',
 		'ranks'
 	)
 
-	rank_for_all = {'rank': ('alla', 'all')}
-	rank_up = {'rank': ('upp', 'up')}
-	rank_down = {'rank': ('ner', 'ned', 'down')}
-
-	FEATURE_SUBCATEGORIES = {
-		str(rank_for_all): CommandSubcategory.RANKING_FOR_ALL,
-		str(rank_down): CommandSubcategory.RANKING_DOWN,
-		str(rank_up): CommandSubcategory.RANKING_UP,
-		'för': CommandSubcategory.RANKING_FOR_MEMBER,
-		'for': CommandSubcategory.RANKING_FOR_MEMBER
-	}
 
 	def __init__(self, *args, **kwargs):
-		self.command_parser = RankingMembersFeatureCommandParser(
-			category = CommandCategory.RANKING,
-			keywords = RankingMembersFeature.FEATURE_KEYWORDS,
-			subcategories = RankingMembersFeature.FEATURE_SUBCATEGORIES
-		)
+	
+		rank_for_all = {'rank': ('alla', 'all')}
+		rank_up = {'rank': ('upp', 'up')}
+		rank_down = {'rank': ('ner', 'ned', 'down')}
 		
-		self.user_rankings = {}
-
-		self.callbacks = {
-			CommandSubcategory.RANKING_UP: self.rank_up,
-			CommandSubcategory.RANKING_DOWN: self.rank_down,
-			CommandSubcategory.RANKING_FOR_MEMBER: self.rank_for_member,
-			CommandSubcategory.RANKING_FOR_ALL: lambda: self.rank_for_all()
+		self.command_parser = RankingMembersFeatureCommandParser()
+		self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS,
+		self.command_parser.callbacks  = {
+			str(rank_up): self.rank_up,
+			str(rank_down): self.rank_down,
+			str(rank_for_all): lambda: self.rank_for_all(),
+			'för': self.rank_for_member,
+			'for': self.rank_for_member
 		}
-
-		self.mapped_pronouns = (
-			CommandPronoun.UNIDENTIFIED,
-		)
-
-		self.interactive_methods = (
-			self.rank_up, 
+		
+		self.command_parser.interactive_methods = (
+			self.rank_up,
 			self.rank_down,
 			self.rank_for_member
 		)
-	
-		super().__init__(
-			command_parser = self.command_parser,
-			callbacks = self.callbacks,
-			interactive_methods = self.interactive_methods
-		)
+
+		self.user_rankings = {}
+		self.mapped_pronouns = (CommandPronoun.UNIDENTIFIED,)
+		super().__init__(command_parser = self.command_parser)
 
 	@logger
 	def rank_up(self, message: discord.Message) -> str:
