@@ -89,7 +89,7 @@ class RobBotClient(discord.Client):
         while not self.is_closed(): 
             result = self.scheduler.run_pending(passthrough = True)
 
-            if not result: #or datetime.now().hour >= 22 or datetime.now().hour < 8:
+            if not result or datetime.now().hour >= 22 or datetime.now().hour < 8:
                 await asyncio.sleep(0.1)
                 continue
             
