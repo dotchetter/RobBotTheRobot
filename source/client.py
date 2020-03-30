@@ -190,8 +190,8 @@ if __name__ == '__main__':
         ranking_ft
     )
     
-    environment_vars['automessage_channel'] = 687088184374460491
     client = RobBotClient(**environment_vars)
+    client.default_autochannel = 687088184374460491
     
 
     """
