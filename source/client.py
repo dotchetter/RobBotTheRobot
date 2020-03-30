@@ -62,9 +62,10 @@ class RobBotClient(discord.Client):
         """
         If a new member just joined our server, greet them warmly!
         """
-        greeting_phrase = self.brain.greet(member.name)
-        await member.create_dm()
-        await member.dm_channel.send(greeting_phrase)
+        with open('greeting.dat', 'r', encoding = 'utf-8') as f:
+            greeting_phrase = f.read()
+            await member.create_dm()
+            await member.dm_channel.send(greeting_phrase)
     
     @logger    
     async def on_message(self, message: discord.Message) -> None: 
@@ -72,13 +73,12 @@ class RobBotClient(discord.Client):
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
         """
-        now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')    
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
             await message.channel.send(response)
 
     @logger            
-    async def run_scheduler(self, channel: int) -> None:
+    async def run_scheduler(self) -> None:
         """
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
