@@ -1,25 +1,18 @@
 import os
 import discord
-import commandintegrator as fw
-from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from commandintegrator.logger import logger
+import CommandIntegrator as ci
+from CommandIntegrator.enumerators import CommandPronoun
+from CommandIntegrator.logger import logger
 from scraper import Scraper
 from datetime import datetime, timedelta
 
 
-class LunchMenuFeatureCommandParser(fw.FeatureCommandParserBase):
+class LunchMenuFeatureCommandParser(ci.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
-        for word in message.content:
-            stripped_word = word.strip(fw.FeatureCommandParserBase.IGNORED_CHARS) 
-            if stripped_word in self._subcategories:
-                return self._subcategories[stripped_word]
-        return CommandSubcategory.LUNCH_TODAY
     
-class LunchMenuFeature(fw.FeatureBase):
+class LunchMenuFeature(ci.FeatureBase):
 
     FEATURE_KEYWORDS = (
         'lunch', 'mat',
@@ -28,54 +21,23 @@ class LunchMenuFeature(fw.FeatureBase):
         'matsedel', 'meny'
     )
 
-    FEATURE_SUBCATEGORIES = {
-        'igår': CommandSubcategory.LUNCH_YESTERDAY,
-        'idag': CommandSubcategory.LUNCH_TODAY,
-        'imor': CommandSubcategory.LUNCH_TOMORROW,
-        'imorn': CommandSubcategory.LUNCH_TOMORROW,
-        'imorgon': CommandSubcategory.LUNCH_TOMORROW,
-        'imoron': CommandSubcategory.LUNCH_TOMORROW,
-        'imorron': CommandSubcategory.LUNCH_TOMORROW,
-        'imorrn': CommandSubcategory.LUNCH_TOMORROW,
-        'övermorgon': CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW,
-        'övermorn': CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW,
-        'övermorrn': CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW,
-        'vecka': CommandSubcategory.LUNCH_FOR_WEEK,
-        'veckan': CommandSubcategory.LUNCH_FOR_WEEK,
-        'veckans': CommandSubcategory.LUNCH_FOR_WEEK
-    }
-
     def __init__(self, **kwargs):
         
-        self.command_parser = LunchMenuFeatureCommandParser(
-            category = CommandCategory.LUNCH_MENU,
-            keywords = LunchMenuFeature.FEATURE_KEYWORDS,
-            subcategories = LunchMenuFeature.FEATURE_SUBCATEGORIES
-        )
-        
-        self.callbacks = {
-            CommandSubcategory.LUNCH_YESTERDAY: lambda: 
-                self.menu_for_weekday_phrase(
-                    weekday = datetime.now() - timedelta(days = 1),
-                    when = CommandSubcategory.LUNCH_YESTERDAY),
-            
-            CommandSubcategory.LUNCH_TODAY: lambda: 
-                self.menu_for_weekday_phrase(
-                    weekday = datetime.now(),
-                    when = CommandSubcategory.LUNCH_TODAY),
-            
-            CommandSubcategory.LUNCH_TOMORROW: lambda: 
-                self.menu_for_weekday_phrase(
-                    weekday = datetime.now() + timedelta(days = 1),
-                    when = CommandSubcategory.LUNCH_TOMORROW),
-            
-            CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW: lambda: 
-                self.menu_for_weekday_phrase(
-                    weekday = datetime.now() + timedelta(days = 2),
-                    when = CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW),
-            
-            CommandSubcategory.LUNCH_FOR_WEEK: lambda: 
-                self.menu_for_week()
+        self.command_parser = LunchMenuFeatureCommandParser()
+        self.command_parser.keywords = LunchMenuFeature.FEATURE_KEYWORDS
+        self.command_parser.callbacks = {
+            'igår': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() - timedelta(days = 1), when = 'igår'),
+            'idag': lambda: self.menu_for_weekday_phrase(weekday = datetime.now(), when = 'idag'),
+            'imorn': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 1), when = 'imorgon'),
+            'imorgon': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 1), when = 'imorgon'),
+            'imorron': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 1), when = 'imorgon'),
+            'imorrn': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 1), when = 'imorgon'),
+            'övermorgon': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 2), when = 'i övermorgon'),
+            'övermorn': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 2), when = 'i övermorgon'),
+            'övermorrn': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 2), when = 'i övermorgon'),
+            'vecka': lambda: self.menu_for_week(),
+            'veckan': lambda: self.menu_for_week(),
+            'veckans': lambda: self.menu_for_week()        
         }
 
         self.mapped_pronouns = (
@@ -84,8 +46,8 @@ class LunchMenuFeature(fw.FeatureBase):
 
         super().__init__(
             interface = Scraper(url = kwargs['url']),
-            command_parser = self.command_parser, 
-            callbacks = self.callbacks)
+            command_parser = self.command_parser
+        )
 
     @logger
     def menu_for_week(self) -> str:
@@ -109,7 +71,7 @@ class LunchMenuFeature(fw.FeatureBase):
         return f'Här är veckans meny :slight_smile:{os.linesep}{os.linesep}{output}'
     
     @logger
-    def menu_for_weekday_phrase(self, weekday: datetime, when: CommandSubcategory) -> str:
+    def menu_for_weekday_phrase(self, weekday: datetime, when: str) -> str:
         """
         Return a user-friendly variant of the content
         retreived by the interface object's methods,
@@ -120,19 +82,12 @@ class LunchMenuFeature(fw.FeatureBase):
         :param weekday:
             datetime for the day that the query concerns
         :when:
-            CommandSubcategory Enum for matching tempus agains
+            string for matching tempus agains
         :returns:
             string
         """
         if self.interface.cache and (datetime.now().date() - self.interface.cache.creation_date).days >= 5:
             self.interface.purge_cache()
-
-        tempus = {
-            CommandSubcategory.LUNCH_YESTERDAY: 'igår',
-            CommandSubcategory.LUNCH_TODAY: 'idag',
-            CommandSubcategory.LUNCH_TOMORROW: 'imorgon',
-            CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW: 'i övermorgon'
-        }
 
         if when == CommandSubcategory.LUNCH_YESTERDAY:
             tense = 'ades'

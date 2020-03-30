@@ -1,18 +1,18 @@
 import discord
 import praw
-import commandintegrator as fw
-from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+import CommandIntegrator as ci
+from CommandIntegrator.enumerators import CommandPronoun
+from CommandIntegrator.logger import logger
 from redditjoke import RedditJoke
-from commandintegrator.logger import logger
 
 
-class RedditJokeFeatureCommandParser(fw.FeatureCommandParserBase):
+class RedditJokeFeatureCommandParser(ci.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class RedditJokeFeature(fw.FeatureBase):
+class RedditJokeFeature(ci.FeatureBase):
 
     FEATURE_KEYWORDS = (
         'skämt', 'meme',
@@ -21,25 +21,17 @@ class RedditJokeFeature(fw.FeatureBase):
         'skämta'
     )
 
-    FEATURE_SUBCATEGORIES = {
-        'meme': CommandSubcategory.TELL_JOKE,
-        'skämt': CommandSubcategory.TELL_JOKE,
-        'skämta': CommandSubcategory.TELL_JOKE,
-        'skoja': CommandSubcategory.TELL_JOKE,
-        'skoj': CommandSubcategory.TELL_JOKE,
-        'humor': CommandSubcategory.TELL_JOKE,
-        'roligt': CommandSubcategory.TELL_JOKE
-    }
-
     def __init__(self, *args, **kwargs):
-        self.command_parser = RedditJokeFeatureCommandParser(
-            category = CommandCategory.TELL_JOKE,
-            keywords = RedditJokeFeature.FEATURE_KEYWORDS,
-            subcategories = RedditJokeFeature.FEATURE_SUBCATEGORIES
-        )  
-
-        self.callbacks = {
-            CommandSubcategory.TELL_JOKE: lambda: self.get_random_joke()
+        self.command_parser = RedditJokeFeatureCommandParser()
+        self.command_parser.keywords = RedditJokeFeature.FEATURE_KEYWORDS,
+        self.command_parser.callbacks = {
+            'meme': self.get_random_joke,
+            'skämt': self.get_random_joke,
+            'skämta': self.get_random_joke,
+            'skoja': self.get_random_joke,
+            'skoj': self.get_random_joke,
+            'humor': self.get_random_joke,
+            'roligt': self.get_random_joke
         }
         
         self.mapped_pronouns = (
@@ -48,7 +40,6 @@ class RedditJokeFeature(fw.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            callbacks = self.callbacks,
             interface = RedditJoke(reddit_client = praw.Reddit(**kwargs))
         )
 

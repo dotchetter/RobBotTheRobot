@@ -1,17 +1,17 @@
 import discord
-import commandintegrator as fw
-from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+import CommandIntegrator as ci
+from CommandIntegrator.enumerators import CommandPronoun
 from timeeditschedule import Schedule
-from commandintegrator.logger import logger
+from CommandIntegrator.logger import logger
 from datetime import datetime
 
-class ScheduleFeatureCommandParser(fw.FeatureCommandParserBase):
+class ScheduleFeatureCommandParser(ci.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class ScheduleFeature(fw.FeatureBase):
+class ScheduleFeature(ci.FeatureBase):
 
     FEATURE_KEYWORDS = (
         'schema', 'schemat',
@@ -19,30 +19,19 @@ class ScheduleFeature(fw.FeatureBase):
         'sal', 'lektioner',
         'lektion'
     )
-
-    FEATURE_SUBCATEGORIES = {
-        'nästa': CommandSubcategory.SCHEDULE_NEXT_LESSON,
-        'klassrum': CommandSubcategory.SCHEDULE_NEXT_LESSON,
-        'idag': CommandSubcategory.SCHEDULE_TODAYS_LESSONS,
-        'imorgon': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
-        'imorn': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
-        'imorrn': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
-        'schema': CommandSubcategory.SCHEDULE_CURRICULUM,
-        'schemat': CommandSubcategory.SCHEDULE_CURRICULUM
-    }
     
     def __init__(self, *args, **kwargs):
-        self.command_parser = ScheduleFeatureCommandParser(
-            category = CommandCategory.SCHEDULE,
-            keywords = ScheduleFeature.FEATURE_KEYWORDS,
-            subcategories = ScheduleFeature.FEATURE_SUBCATEGORIES
-        )
-
-        self.callbacks = {
-            CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self.get_next_lesson(),
-            CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self.get_curriculum(),
-            CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self.get_todays_lessons(),
-            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self.get_curriculum()
+        self.command_parser = ScheduleFeatureCommandParser()
+        self.command_parser.keywords = ScheduleFeature.FEATURE_KEYWORDS
+        self.command_parser.callbacks = {
+            'nästa': lambda: self.get_next_lesson(),
+            'klassrum': lambda: self.get_next_lesson(),
+            'idag': lambda: self.get_todays_lessons(),
+            'imorgon': lambda: self.get_curriculum(),
+            'imorn': lambda: self.get_curriculum(),
+            'imorrn': lambda: self.get_curriculum(),
+            'schema': lambda: self.get_curriculum(),
+            'schemat': lambda: self.get_curriculum() 
         }
 
         self.mapped_pronouns = (
@@ -51,11 +40,11 @@ class ScheduleFeature(fw.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            callbacks = self.callbacks,
             interface = Schedule(**kwargs)
         )
 
     @logger
+    @ci.scheduledmethod
     def get_curriculum(self, return_if_none = True) -> str:
         """
         Return string with the schedule for as long as forseeable
@@ -107,6 +96,7 @@ class ScheduleFeature(fw.FeatureBase):
             return 'Just nu ser det tomt ut på schemat...'
 
     @logger
+    @ci.scheduledmethod
     def get_todays_lessons(self, return_if_none = True) -> str:
         """
         Return concatenated response phrase with all lessons for 
