@@ -205,11 +205,19 @@ if __name__ == '__main__':
     class message_mock:
         content: list
 
-    pollcache = PollCache()
+    pollcache = PollCache(silent_first_call = True)
 
-    client.scheduler.every().day.at('08:30').do(schedule_ft.get_todays_lessons, return_if_none = False)
-    client.scheduler.every().sunday.at('15:00').do(schedule_ft.get_curriculum, return_if_none = False)
-    client.scheduler.every(20).to(24).hours.do(redditjoke_ft.get_random_joke)
+    client.scheduler.every().day.at('08:30').do(
+        schedule_ft.get_todays_lessons, return_if_none = False, channel = 694294353954340994
+    )
+
+    client.scheduler.every().sunday.at('15:00').do(
+        schedule_ft.get_curriculum, return_if_none = False, channel = 694294353954340994
+    )
+    
+    client.scheduler.every(20).to(24).hours.do(
+        redditjoke_ft.get_random_joke, channel = 687088295079051289
+    ) 
 
     swe_cases_request = message_mock
     swe_cases_request.content = 'hur många har smittats i sverige'.split(' ')
