@@ -4,3 +4,6 @@
 [submodule "source/schedule"]
 	path = source/schedule
 	url = https://github.com/dotchetter/schedule
+[submodule "source/--force"]
+	path = source/--force
+	url = https://github.com/dotchetter/CommandIntegrator.git
