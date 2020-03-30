@@ -3,5 +3,5 @@
 	url = https://github.com/dotchetter/schedule
 
 [submodule "CommandIntegrator"]
-	path = CommandIntegrator
+	path = source/CommandIntegrator
 	url = https://github.com/dotchetter/CommandIntegrator.git
