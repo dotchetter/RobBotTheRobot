@@ -1,9 +1,9 @@
 import os
 import json
 import asyncio
-import schedule
 import discord
 
+from schedule import Scheduler
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from dotenv import load_dotenv
