@@ -25,13 +25,13 @@ class RedditJokeFeature(ci.FeatureBase):
         self.command_parser = RedditJokeFeatureCommandParser()
         self.command_parser.keywords = RedditJokeFeature.FEATURE_KEYWORDS
         self.command_parser.callbacks = {
-            'meme': self.get_random_joke,
-            'skämt': self.get_random_joke,
-            'skämta': self.get_random_joke,
-            'skoja': self.get_random_joke,
-            'skoj': self.get_random_joke,
-            'humor': self.get_random_joke,
-            'roligt': self.get_random_joke
+            'meme': lambda: self.get_random_joke(),
+            'skämt': lambda: self.get_random_joke(),
+            'skämta': lambda: self.get_random_joke(),
+            'skoja': lambda: self.get_random_joke(),
+            'skoj': lambda: self.get_random_joke(),
+            'humor': lambda: self.get_random_joke(),
+            'roligt': lambda: self.get_random_joke()
         }
         
         self.mapped_pronouns = (
