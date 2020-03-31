@@ -1,9 +1,9 @@
 import os
 import json
 import asyncio
-import schedule
 import discord
 
+from schedule import Scheduler
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from dotenv import load_dotenv
@@ -17,8 +17,8 @@ from features.RedditJokeFeature import RedditJokeFeature
 from features.ScheduleFeature import ScheduleFeature
 from features.CoronaSpreadFeature import CoronaSpreadFeature
 from features.RankingMembersFeature import RankingMembersFeature
-from commandintegrator.logger import logger
-from commandintegrator import CommandProcessor, PronounLookupTable, PollCache
+from CommandIntegrator.logger import logger
+from CommandIntegrator import CommandProcessor, PronounLookupTable, PollCache
 
 """
 Details:
@@ -41,21 +41,13 @@ class RobBotClient(discord.Client):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.loop.create_task(self.run_scheduler(self.automessage_channel))
+        self.loop.create_task(self.run_scheduler())
         self._guild = kwargs['DISCORD_GUILD']
-        self._scheduler = schedule.Scheduler()
+        self._scheduler = Scheduler()
                         
     @property
     def scheduler(self):
         return self._scheduler
-
-    @property
-    def automessage_channel(self):
-        return self._automessage_channel
-
-    @automessage_channel.setter
-    def automessage_channel(self, val: int):
-        self._automessage_channel = val    
 
     @logger
     async def on_ready(self) -> None:
@@ -70,9 +62,10 @@ class RobBotClient(discord.Client):
         """
         If a new member just joined our server, greet them warmly!
         """
-        greeting_phrase = self.brain.greet(member.name)
-        await member.create_dm()
-        await member.dm_channel.send(greeting_phrase)
+        with open('greeting.dat', 'r', encoding = 'utf-8') as f:
+            greeting_phrase = f.read()
+            await member.create_dm()
+            await member.dm_channel.send(greeting_phrase)
     
     @logger    
     async def on_message(self, message: discord.Message) -> None: 
@@ -80,27 +73,47 @@ class RobBotClient(discord.Client):
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
         """
-        now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')    
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
             if response: await message.channel.send(response)
 
     @logger            
-    async def run_scheduler(self, channel: int) -> None:
+    async def run_scheduler(self) -> None:
         """
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
         """
 
         await client.wait_until_ready()
-        channel = self.get_channel(channel)
-        
-        while not self.is_closed():            
+
+        while not self.is_closed(): 
             result = self.scheduler.run_pending(passthrough = True)
-            if result: 
-                for _, value in result.items():
-                    if value: await channel.send(value)
+
+            if not result or datetime.now().hour >= 22 or datetime.now().hour < 8:
+                await asyncio.sleep(0.1)
+                continue
+            
+            for _, method_return in result.items():
+                if not method_return:
+                    continue
+                if isinstance(method_return, dict):
+                    channel = method_return['channel']
+                    message = method_return['result']
+                    channel = self.get_channel(channel)
+                    if message:
+                        await channel.send(message)
+                else:
+                    channel = self.get_channel(self.default_autochannel)
+                    await channel.send(method_return)
             await asyncio.sleep(0.1)
+
+    @property
+    def default_autochannel(self):
+        return self._default_autochannel
+
+    @default_autochannel.setter
+    def default_autochannel(self, value):
+        self._default_autochannel = value
    
 
 def load_environment(env_var_strings: list) -> dict:
@@ -139,10 +152,10 @@ if __name__ == '__main__':
         'CORONA_API_RAPIDAPI_KEY'
     ]
 
-    commandintegrator_settings_file = ''
-    corona_translation_file = ''
+    CommandIntegrator_settings_file = Path('CommandIntegrator') / 'commandintegrator.settings.json'
+    corona_translation_file = 'country_eng_swe_translations.json'
 
-    with open(commandintegrator_settings_file, 'r', encoding = 'utf-8') as f:
+    with open(CommandIntegrator_settings_file, 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
 
     environment_vars = load_environment(enviromnent_strings)
@@ -177,8 +190,8 @@ if __name__ == '__main__':
         ranking_ft
     )
     
-    environment_vars['automessage_channel'] = 687256070561071167
     client = RobBotClient(**environment_vars)
+    client.default_autochannel = 'DISCORD_CHANNEL_HERE'
     
 
     """
@@ -187,16 +200,23 @@ if __name__ == '__main__':
     
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
     """
-
     @dataclass
     class message_mock:
         content: list
 
-    pollcache = PollCache()
+    pollcache = PollCache(silent_first_call = True)
 
-    client.scheduler.every().day.at('08:30').do(schedule_ft.get_todays_lessons, return_if_none = False)
-    client.scheduler.every().sunday.at('15:00').do(schedule_ft.get_curriculum, return_if_none = False)
-    client.scheduler.every(20).to(24).hours.do(redditjoke_ft.get_random_joke)
+    client.scheduler.every().day.at('08:30').do(
+        schedule_ft.get_todays_lessons, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
+    )
+
+    client.scheduler.every().sunday.at('15:00').do(
+        schedule_ft.get_curriculum, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
+    )
+    
+    client.scheduler.every(20).to(24).hours.do(
+        redditjoke_ft.get_random_joke, channel = 'DISCORD_CHANNEL_HERE'
+    ) 
 
     swe_cases_request = message_mock
     swe_cases_request.content = 'hur många har smittats i sverige'.split(' ')
@@ -208,15 +228,19 @@ if __name__ == '__main__':
     swe_deaths_request.content = 'hur många har omkommit i sverige'.split(' ')
     
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request)
+        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request,
+        channel = 'DISCORD_CHANNEL_HERE'
+    )
 
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request)
+        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request,
+        channel = 'DISCORD_CHANNEL_HERE'
+    )
 
     client.scheduler.every(1).minutes.do(
-        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request)
-
+        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request,
+        channel = 'DISCORD_CHANNEL_HERE'
+    )
 
     # --- Turn the key and start the bot ---
-
     client.run(environment_vars['DISCORD_TOKEN'])

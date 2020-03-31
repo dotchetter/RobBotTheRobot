@@ -1,6 +1,7 @@
 import ics
 import json
 import os
+import CommandIntegrator as ci
 from enum import Enum, auto
 from urllib.request import urlopen
 from datetime import date, datetime, timedelta, time
@@ -55,7 +56,7 @@ class Schedule:
         hourdelta parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
         """
-        hourdelta = 2 if datetime.now().dst() else 1
+        hourdelta = 2 if ci.is_dst() else 1
 
         for event in self.curriculum:
             try:
