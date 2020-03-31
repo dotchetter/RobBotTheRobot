@@ -78,6 +78,7 @@ class Scraper:
 		to shorten response time and to spare the server
 		from requests.
 		"""
+		startsat, endsat = None, None
 		try:
 			html = self.soup.find_all('strong')
 		except Exception:
@@ -89,6 +90,8 @@ class Scraper:
 			elif 'kontakta' in tag.text.lower():
 				endsat = index
 
+		if startsat is None or endsat is None:
+			raise ScrapingError("No data found from the source")
 		self._cache_menu(Menu(html[startsat:endsat]))
 
 	def purge_cache(self):
@@ -104,11 +107,11 @@ class Scraper:
 		of dishes for specific day of week. 
 		"""
 		if not self.cache:
-			self._cache_web_content()
-		try:
-			return self.cache[weekday]
-		except Exception:
-			return None
+			try:
+				self._cache_web_content()
+				return self.cache[weekday]
+			except Exception as e:
+				return e
 
 	def get_menu_for_week(self):
 		"""
@@ -116,8 +119,11 @@ class Scraper:
 		from the website.
 		"""
 		if not self.cache:
-			self._cache_web_content()
-		return self._cache[0:5]
+			try:
+				self._cache_web_content()
+				return self._cache[0:5]
+			except Exception as e:
+				return e
 
 	@property
 	def cache(self):
