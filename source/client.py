@@ -191,7 +191,7 @@ if __name__ == '__main__':
     )
     
     client = RobBotClient(**environment_vars)
-    client.default_autochannel = 687088184374460491
+    client.default_autochannel = 'DISCORD_CHANNEL_HERE'
     
 
     """
@@ -207,15 +207,15 @@ if __name__ == '__main__':
     pollcache = PollCache(silent_first_call = True)
 
     client.scheduler.every().day.at('08:30').do(
-        schedule_ft.get_todays_lessons, return_if_none = False, channel = 694294353954340994
+        schedule_ft.get_todays_lessons, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
     )
 
     client.scheduler.every().sunday.at('15:00').do(
-        schedule_ft.get_curriculum, return_if_none = False, channel = 694294353954340994
+        schedule_ft.get_curriculum, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
     )
     
     client.scheduler.every(20).to(24).hours.do(
-        redditjoke_ft.get_random_joke, channel = 687088295079051289
+        redditjoke_ft.get_random_joke, channel = 'DISCORD_CHANNEL_HERE'
     ) 
 
     swe_cases_request = message_mock
@@ -229,17 +229,17 @@ if __name__ == '__main__':
     
     client.scheduler.every(1).minutes.do(
         pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request,
-        channel = 694293924138844160
+        channel = 'DISCORD_CHANNEL_HERE'
     )
 
     client.scheduler.every(1).minutes.do(
         pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request,
-        channel = 694293951938822235
+        channel = 'DISCORD_CHANNEL_HERE'
     )
 
     client.scheduler.every(1).minutes.do(
         pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request,
-        channel = 694293935392292864
+        channel = 'DISCORD_CHANNEL_HERE'
     )
 
     # --- Turn the key and start the bot ---
