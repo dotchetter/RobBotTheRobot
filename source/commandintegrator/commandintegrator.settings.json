@@ -1,6 +1,6 @@
 
 {
-	"log_dir": "",
+	"log_dir": ".",
 	
 	"default_responses": {
 		"NoImplementation": 
@@ -12,7 +12,8 @@
 
 		"NoSubCategory": 
 		[
-			"Jag förstår dig men inte exakt vad du är ute efter, försök vara lite tydligare"
+			"Jag förstår dig men inte exakt vad du är ute efter, försök vara lite tydligare",
+			"Hm, jag förstår nästan. Kontrollera stavningen och formuleringen."
 		],
 
 		"NoResponse": 
