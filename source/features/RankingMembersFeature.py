@@ -16,7 +16,6 @@ class RankingMembersFeature(ci.FeatureBase):
 		'ranks'
 	)
 
-
 	def __init__(self, *args, **kwargs):
 	
 		rank_for_all = {'rank': ('alla', 'all')}
@@ -24,7 +23,7 @@ class RankingMembersFeature(ci.FeatureBase):
 		rank_down = {'rank': ('ner', 'ned', 'down')}
 		
 		self.command_parser = RankingMembersFeatureCommandParser()
-		self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS,
+		self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS
 		self.command_parser.callbacks  = {
 			str(rank_up): self.rank_up,
 			str(rank_down): self.rank_down,

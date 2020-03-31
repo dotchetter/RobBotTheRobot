@@ -89,7 +89,7 @@ class LunchMenuFeature(ci.FeatureBase):
         if self.interface.cache and (datetime.now().date() - self.interface.cache.creation_date).days >= 5:
             self.interface.purge_cache()
 
-        if when == CommandSubcategory.LUNCH_YESTERDAY:
+        if when == 'igår':
             tense = 'ades'
         else:
             tense = 'as'
