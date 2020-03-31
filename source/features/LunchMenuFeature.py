@@ -37,7 +37,7 @@ class LunchMenuFeature(ci.FeatureBase):
             'övermorrn': lambda: self.menu_for_weekday_phrase(weekday = datetime.now() + timedelta(days = 2), when = 'i övermorgon'),
             'vecka': lambda: self.menu_for_week(),
             'veckan': lambda: self.menu_for_week(),
-            'veckans': lambda: self.menu_for_week()        
+            'veckans': lambda: self.menu_for_week()
         }
 
         self.mapped_pronouns = (
