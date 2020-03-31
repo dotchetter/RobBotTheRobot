@@ -23,7 +23,7 @@ class RedditJokeFeature(ci.FeatureBase):
 
     def __init__(self, *args, **kwargs):
         self.command_parser = RedditJokeFeatureCommandParser()
-        self.command_parser.keywords = RedditJokeFeature.FEATURE_KEYWORDS,
+        self.command_parser.keywords = RedditJokeFeature.FEATURE_KEYWORDS
         self.command_parser.callbacks = {
             'meme': self.get_random_joke,
             'skämt': self.get_random_joke,
