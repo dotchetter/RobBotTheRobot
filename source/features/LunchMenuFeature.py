@@ -57,6 +57,8 @@ class LunchMenuFeature(ci.FeatureBase):
         """
         days = ('**Måndag**', '**Tisdag**', '**Onsdag**', '**Torsdag**', '**Fredag**')
         menu_for_week = self.interface.get_menu_for_week()
+        if isinstance(menu_for_week, Exception):
+            return f'Jag set inget på menyn för denna vecka'
         output = str()
         
         for index, day in enumerate(menu_for_week):
@@ -95,6 +97,6 @@ class LunchMenuFeature(ci.FeatureBase):
             tense = 'as'
 
         menu = self.interface.get_menu_for_weekday(weekday.weekday())
-        if menu is None:
-            return f'Jag ser inget på menyn för {tempus[when]}.'
-        return f'Detta server{tense} {tempus[when]}!{os.linesep}{os.linesep}{os.linesep.join(menu)}'
+        if isinstance(menu, Exception):
+            return f'Jag ser inget på menyn för {when}'
+        return f'Detta server{tense} {when}!{os.linesep}{os.linesep}{os.linesep.join(menu)}'
