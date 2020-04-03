@@ -44,5 +44,6 @@ class RedditJokeFeature(ci.FeatureBase):
         )
 
     @logger
+    @ci.scheduledmethod
     def get_random_joke(self) -> str:
         return self.interface.get()
