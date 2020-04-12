@@ -164,6 +164,7 @@ if __name__ == '__main__':
 
     #  --- Instantiate the key backend objects used and the discord client ---
 
+    helpqueue_ft = HelpQueueFeature()
     ranking_ft = RankingMembersFeature()
     lunchmenu_ft = LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL'])
     schedule_ft = ScheduleFeature(url = environment_vars['TIMEEDIT_URL'])
