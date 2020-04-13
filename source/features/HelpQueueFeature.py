@@ -2,6 +2,7 @@ import discord
 import CommandIntegrator as ci
 import os
 from CommandIntegrator.enumerators import CommandPronoun
+from CommandIntegrator.logger import logger
 from queue import Queue
 
 class HelpQueueFeatureCommandParser(ci.FeatureCommandParserBase):
@@ -45,6 +46,7 @@ class HelpQueueFeature(ci.FeatureBase):
 			command_parser = self.command_parser
 		)
 
+	@logger
 	def enqueue(self, message: discord.Message) -> str:
 		"""
 		This method enqueues a user in the help queue.
@@ -63,7 +65,7 @@ class HelpQueueFeature(ci.FeatureBase):
 		self.help_queue.put(message.author)
 		return f'{message.author.mention} har plats {self.help_queue.qsize()}'
 		
-
+	@logger
 	def dequeue(self, message: discord.Message) -> str:
 		"""
 		This method dequeues the next user in line
@@ -88,6 +90,7 @@ class HelpQueueFeature(ci.FeatureBase):
 			return f'Du kan bara utöva detta kommando i en av kanalerna, inte i PM.'
 		return f'{message.author.mention}, du saknar behörighet för detta'
 
+	@logger
 	def _get_remaining(self) -> str:
 		"""
 		Returns a phrase to indicate the size of the queue.
@@ -102,6 +105,7 @@ class HelpQueueFeature(ci.FeatureBase):
 			return f'Det finns {self.help_queue.qsize()} {amt} på hjälplistan'
 		return 'Hjälplistan är tom'
 
+	@logger
 	def get_next_in_queue(self):
 		"""
 		Returns the member next in queue without popping.
@@ -112,6 +116,7 @@ class HelpQueueFeature(ci.FeatureBase):
 			return f'Näst på kö är {self.help_queue.queue[0].mention}' 
 		return 'Hjälplistan är tom'
 
+	@logger
 	def list_queue(self) -> str:
 		"""
 		Returns a concatenated string with all the members in 
