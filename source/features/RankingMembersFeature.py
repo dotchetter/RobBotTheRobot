@@ -64,7 +64,7 @@ class RankingMembersFeature(ci.FeatureBase):
 				self.user_rankings[member] += 1
 			except KeyError:
 				self.user_rankings[member] = 1
-			output.append(f'{member.mention} ökade till {self.user_rankings[member]}')
+			output.append(f':small_red_triangle: {member.mention} ökade till {self.user_rankings[member]}')
 		if len(output):
 			return f'{os.linesep.join(output)}'
 
@@ -83,7 +83,7 @@ class RankingMembersFeature(ci.FeatureBase):
 				self.user_rankings[member] -= 1
 			except KeyError:
 				self.user_rankings[member] = -1
-			output.append(f'{member.mention} minskade till {self.user_rankings[member]}')
+			output.append(f':small_red_triangle_down: {member.mention} minskade till {self.user_rankings[member]}')
 		if len(output): 
 			return f'{os.linesep.join(output)}'
 
