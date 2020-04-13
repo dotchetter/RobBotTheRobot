@@ -17,6 +17,7 @@ from features.RedditJokeFeature import RedditJokeFeature
 from features.ScheduleFeature import ScheduleFeature
 from features.CoronaSpreadFeature import CoronaSpreadFeature
 from features.RankingMembersFeature import RankingMembersFeature
+from features.HelpQueueFeature import HelpQueueFeature
 from CommandIntegrator.logger import logger
 from CommandIntegrator import CommandProcessor, PronounLookupTable, PollCache
 
@@ -73,6 +74,7 @@ class RobBotClient(discord.Client):
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
         """
+
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
             if response: await message.channel.send(response)
@@ -188,7 +190,8 @@ if __name__ == '__main__':
         schedule_ft, 
         corona_ft, 
         redditjoke_ft, 
-        ranking_ft
+        ranking_ft,
+        helpqueue_ft
     )
     
     client = RobBotClient(**environment_vars)
