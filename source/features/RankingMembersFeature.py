@@ -106,8 +106,7 @@ class RankingMembersFeature(ci.FeatureBase):
 		Return ranks for all members in a list
 		"""
 		output = []
-		sorted(self.user_rankings, key = lambda i: self.user_rankings[i]) 
-		for member in self.user_rankings:
+		for member in sorted(self.user_rankings, key = lambda i: self.user_rankings[i], reverse = True):
 			output.append(f'{member.mention} rankar {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
 
@@ -118,6 +117,10 @@ class RankingMembersFeature(ci.FeatureBase):
 		opt out command (message author)
 		"""
 		self.opted_out_members.append(message.author)
+		try:
+			self.user_rankings.pop(message.author)
+		except:
+			pass
 		return f'Ranking för {message.author.mention} har spärrats'
 
 	@logger
