@@ -101,13 +101,30 @@ class RankingMembersFeature(ci.FeatureBase):
 		return f'{os.linesep.join(output)}'
 
 	@logger
-	def rank_for_all(self):
+	def rank_for_all(self) -> str:
 		"""
-		Return ranks for all members in a list
+		Return ranks for all members in a list. The highscore
+		are the top three, and they are displayed with different
+		emojis from the others, as well as surrounded in a pattern
+		of diamonds.
 		"""
 		output = []
-		for member in sorted(self.user_rankings, key = lambda i: self.user_rankings[i], reverse = True):
-			output.append(f'{member.mention} rankar {self.user_rankings[member]}')
+		inserted_separator = False
+		emojis = {1: ':first_place:', 2: ':second_place:', 3: ':third_place:'}
+		
+		for place, member in enumerate(sorted(self.user_rankings, key = lambda i: self.user_rankings[i], reverse = True)):
+			if place == 0:
+				output.append(':small_orange_diamond:' * 10)
+				output.append('** H  I  G  H    S  C  O  R  E **')	
+			if (place + 1) < 4:
+				place_emoji = emojis[place + 1]
+			else:
+				if not inserted_separator:
+					output.append(':small_orange_diamond:' * 10)
+					output.append(os.linesep)
+					inserted_separator = True
+				place_emoji = ':star:'
+			output.append(f'{place_emoji} **{member.name}**: **{self.user_rankings[member]}**')
 		return f'{os.linesep.join(output)}'
 
 	@logger
