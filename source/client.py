@@ -23,7 +23,7 @@ from CommandIntegrator import CommandProcessor, PronounLookupTable, PollCache
 
 """
 Details:
-    2020-03-10 Simon Olofsson
+    2020-04-13 Simon Olofsson
 
 Module details:
     Service main executable
