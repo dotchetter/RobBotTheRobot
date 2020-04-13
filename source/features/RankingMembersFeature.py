@@ -21,6 +21,8 @@ class RankingMembersFeature(ci.FeatureBase):
 		rank_for_all = {'rank': ('alla', 'all')}
 		rank_up = {'rank': ('upp', 'up')}
 		rank_down = {'rank': ('ner', 'ned', 'down')}
+		rank_opt_out = {'hoppa': ('ur', 'ut', 'out')}
+		rank_opt_in = {'hoppa': ('in',)}
 		
 		self.command_parser = RankingMembersFeatureCommandParser()
 		self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS
@@ -28,6 +30,8 @@ class RankingMembersFeature(ci.FeatureBase):
 			str(rank_up): self.rank_up,
 			str(rank_down): self.rank_down,
 			str(rank_for_all): lambda: self.rank_for_all(),
+			str(rank_opt_out): self.opt_out,
+			str(rank_opt_in): self.opt_in,
 			'för': self.rank_for_member,
 			'for': self.rank_for_member
 		}
@@ -35,10 +39,13 @@ class RankingMembersFeature(ci.FeatureBase):
 		self.command_parser.interactive_methods = (
 			self.rank_up,
 			self.rank_down,
-			self.rank_for_member
+			self.rank_for_member,
+			self.opt_in,
+			self.opt_out
 		)
 
-		self.user_rankings = {}
+		self.user_rankings = dict()
+		self.opted_out_members = list()
 		self.mapped_pronouns = (CommandPronoun.UNIDENTIFIED,)
 		super().__init__(command_parser = self.command_parser)
 
@@ -52,6 +59,8 @@ class RankingMembersFeature(ci.FeatureBase):
 			try:
 				if message.author == member:
 					continue
+				elif member in self.opted_out_members:
+					return 'Denna medlem har valt att gå ur ranking funktionen'
 				self.user_rankings[member] += 1
 			except KeyError:
 				self.user_rankings[member] = 1
@@ -69,6 +78,8 @@ class RankingMembersFeature(ci.FeatureBase):
 			try:
 				if message.author == member:
 					continue
+				elif member in self.opted_out_members:
+					return 'Denna medlem har valt att gå ur ranking funktionen'
 				self.user_rankings[member] -= 1
 			except KeyError:
 				self.user_rankings[member] = -1
@@ -95,6 +106,25 @@ class RankingMembersFeature(ci.FeatureBase):
 		Return ranks for all members in a list
 		"""
 		output = []
+		sorted(self.user_rankings, key = lambda i: self.user_rankings[i]) 
 		for member in self.user_rankings:
 			output.append(f'{member.mention} rankar {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
+
+	@logger
+	def opt_out(self, message: discord.Message) -> str:
+		"""
+		Disable the ranking feature for whoever wrote the
+		opt out command (message author)
+		"""
+		self.opted_out_members.append(message.author)
+		return f'Ranking för {message.author.mention} har spärrats'
+
+	@logger
+	def opt_in(self, message: discord.Message) -> str:
+		"""
+		Re-enable the ranking feature for whoever wrote the
+		opt out command (message author)
+		"""
+		self.opted_out_members.remove(message.author)
+		return f'Ranking för {message.author.mention} har återaktiverats'
