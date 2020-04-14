@@ -237,15 +237,15 @@ if __name__ == '__main__':
     pollcache = PollCache(silent_first_call = True)
 
     client.scheduler.every().day.at('08:30').do(
-        schedule_ft.get_todays_lessons, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
+        schedule_ft.get_todays_lessons, return_if_none = False, channel = client.default_autochannel
     )
 
     client.scheduler.every().sunday.at('15:00').do(
-        schedule_ft.get_curriculum, return_if_none = False, channel = 'DISCORD_CHANNEL_HERE'
+        schedule_ft.get_curriculum, return_if_none = False, channel = client.default_autochannel
     )
     
     client.scheduler.every(20).to(24).hours.do(
-        redditjoke_ft.get_random_joke, channel = 'DISCORD_CHANNEL_HERE'
+        redditjoke_ft.get_random_joke, channel = client.default_autochannel
     ) 
 
     swe_cases_request = message_mock
