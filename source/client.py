@@ -43,8 +43,10 @@ class RobBotClient(discord.Client):
             setattr(self, key, value)
 
         self.loop.create_task(self.run_scheduler())
+        self.loop.create_task(self.send_to_role(method = helpqueue_ft.list_queue, role = 'teacher'))
         self._guild = kwargs['DISCORD_GUILD']
         self._scheduler = Scheduler()
+        self._pollcache = PollCache(silent_first_call = True)
                         
     @property
     def scheduler(self):
@@ -78,6 +80,30 @@ class RobBotClient(discord.Client):
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
             if response: await message.channel.send(response)
+
+    @logger
+    async def send_to_role(self, method: callable, role: str) -> None:
+        """
+        Send string message to users in the guild with 
+        the @teacher role only, as a private message.
+        :param method:
+            method to call with pollcache instance
+            looping over infinitely, only sending 
+            deviating results (updates)
+        :param role:
+            string, the name of the role on the server
+            to send messages to.
+        """
+        while not self.is_closed():
+            res = self._pollcache(method)
+            if not res:
+                await asyncio.sleep(0.01)
+                continue
+            for user in self.get_all_members():
+                if len([i for i in user.roles if i.name == role]):
+                    await user.create_dm()
+                    await user.dm_channel.send(res)
+            await asyncio.sleep(0.01)
 
     @logger            
     async def run_scheduler(self) -> None:
