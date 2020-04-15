@@ -53,6 +53,32 @@ class HelpQueueFeature(ci.FeatureBase):
         It will also respond with the position in the
         queue for the newly enqueued user.
 
+        :param message:
+            discord.Message, the whole message object
+            from the chat application
+        :returns:
+            str, message with queue position
+        """
+        for n, i in enumerate(self.help_queue.queue):
+            if i == message.author: 
+                return f'{message.author.mention} du står redan i kön på plats {n + 1}'
+        self.help_queue.put(message.author)
+        return f'{message.author.mention} skrevs upp. Du har plats {self.help_queue.qsize()}'
+        
+    @logger
+    def dequeue(self, message: discord.Message) -> str:
+        """
+        This method dequeues the next user in line
+        for recieving help from the teacher. 
+        Dequeing is limited to members with the 
+        "teacher" role only, this is checked first before
+        dequeueing.
+        :param message:
+            discord.Message, the whole message object
+            from the chat application
+        """
+        if not self.help_queue.qsize():
+            return 'Hjälplistan är tom'
 
         try:
             if len([i for i in message.author.roles if i.name == 'teacher']):
@@ -74,3 +100,16 @@ class HelpQueueFeature(ci.FeatureBase):
             output.append(f"‧ {place + 1}: `{member.name.strip('@')}`")
         return f'{os.linesep.join(output)}'
 
+    def queue_went_active(self) -> str:
+        """
+        This method returns a phrase if the queue size went
+        from 0 to 1 in size since last call. It can be
+        used to call it continuously and get the phrase back
+        only when the queue has been emptied but then reactivated 
+        by someone signing up for help.
+        :returns:
+            str
+        """
+        if self.latest_queue_state == 0 and self.help_queue.qsize() == 1:
+            return 'Hjälplistan är aktiv'
+        self.latest_queue_state = self.help_queue.qsize()
