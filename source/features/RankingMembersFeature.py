@@ -6,48 +6,49 @@ from CommandIntegrator.logger import logger
 
 class RankingMembersFeatureCommandParser(ci.FeatureCommandParserBase):
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class RankingMembersFeature(ci.FeatureBase):
 
-	FEATURE_KEYWORDS = (
-		'rank',
-		'ranks'
-	)
+    FEATURE_KEYWORDS = (
+        'rank',
+        'ranks'
+    )
 
-	def __init__(self, *args, **kwargs):
-	
-		rank_for_all = {'rank': ('alla', 'all')}
-		rank_up = {'rank': ('upp', 'up')}
-		rank_down = {'rank': ('ner', 'ned', 'down')}
-		rank_opt_out = {'hoppa': ('ur', 'ut', 'out')}
-		rank_opt_in = {'hoppa': ('in',)}
-		
-		self.command_parser = RankingMembersFeatureCommandParser()
-		self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS
-		self.command_parser.callbacks  = {
-			str(rank_up): self.rank_up,
-			str(rank_down): self.rank_down,
-			str(rank_for_all): lambda: self.rank_for_all(),
-			str(rank_opt_out): self.opt_out,
-			str(rank_opt_in): self.opt_in,
-			'för': self.rank_for_member,
-			'for': self.rank_for_member
-		}
-		
-		self.command_parser.interactive_methods = (
-			self.rank_up,
-			self.rank_down,
-			self.rank_for_member,
-			self.opt_in,
-			self.opt_out
-		)
+    def __init__(self, *args, **kwargs):
+    
+        rank_for_all = {'rank': ('alla', 'all')}
+        rank_up = {'rank': ('upp', 'up')}
+        rank_down = {'rank': ('ner', 'ned', 'down')}
+        rank_opt_out = {'hoppa': ('ur', 'ut', 'out')}
+        rank_opt_in = {'hoppa': ('in',)}
+        
+        self.command_parser = RankingMembersFeatureCommandParser()
+        self.command_parser.keywords = RankingMembersFeature.FEATURE_KEYWORDS
+        self.command_parser.callbacks  = {
+            str(rank_up): self.rank_up,
+            str(rank_down): self.rank_down,
+            str(rank_for_all): lambda: self.rank_for_all(),
+            str(rank_opt_out): self.opt_out,
+            str(rank_opt_in): self.opt_in,
+            'för': self.rank_for_member,
+            'for': self.rank_for_member
+        }
+        
+        self.command_parser.interactive_methods = (
+            self.rank_up,
+            self.rank_down,
+            self.rank_for_member,
+            self.opt_in,
+            self.opt_out
+        )
 
-		self.user_rankings = dict()
-		self.opted_out_members = list()
-		self.mapped_pronouns = (CommandPronoun.UNIDENTIFIED,)
-		super().__init__(command_parser = self.command_parser)
+        self.rank_data = dict()
+        self.rank_data['userid_rank'] = dict()
+        self.rank_data['opted_out_members'] = list()
+        self.mapped_pronouns = (CommandPronoun.UNIDENTIFIED,)
+        super().__init__(command_parser = self.command_parser)
 
 	@logger
 	def rank_up(self, message: discord.Message) -> str:
