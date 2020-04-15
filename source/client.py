@@ -43,7 +43,7 @@ class RobBotClient(discord.Client):
             setattr(self, key, value)
 
         self.loop.create_task(self.run_scheduler())
-        self.loop.create_task(self.send_to_role(method = helpqueue_ft.list_queue, role = 'teacher'))
+        self.loop.create_task(self.send_to_role(method = helpqueue_ft.queue_went_active, role = 'teacher'))
         self._guild = kwargs['DISCORD_GUILD']
         self._scheduler = Scheduler()
         self._pollcache = PollCache(silent_first_call = True)
