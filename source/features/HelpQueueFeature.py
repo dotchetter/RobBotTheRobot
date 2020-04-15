@@ -111,5 +111,5 @@ class HelpQueueFeature(ci.FeatureBase):
             str
         """
         if self.latest_queue_state == 0 and self.help_queue.qsize() == 1:
-            return 'Hjälplistan är aktiv'
+            return ':warning: Hjälplistan är aktiv'
         self.latest_queue_state = self.help_queue.qsize()
