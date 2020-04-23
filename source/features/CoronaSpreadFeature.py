@@ -184,11 +184,9 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
                 response = self.interface.get_by_query(query = 'cases', country_name = country)
             except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+                return
         else:
             return f'Totalt {response} har smittats av corona i {country.capitalize()}'
-            
-
 
     @logger
     @ci.scheduledmethod
@@ -208,10 +206,9 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
                 response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
             except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+                return
         else:
             return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
-            
 
     @logger
     @ci.scheduledmethod
@@ -231,7 +228,6 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
                 response = self.interface.get_by_query(query = 'deaths', country_name = country)
             except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+                return
         else:
             return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
-            
