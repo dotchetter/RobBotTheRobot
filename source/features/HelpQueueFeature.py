@@ -18,6 +18,8 @@ class HelpQueueFeature(ci.FeatureBase):
         'visa'
     )
 
+    QUEUE_STATES = {}
+
     def __init__(self, *args, **kwargs):
         self.help_queue = Queue()
         self.demonstration_queue = Queue()
@@ -121,6 +123,25 @@ class HelpQueueFeature(ci.FeatureBase):
         for place, member in enumerate(self.demonstration_queue.queue):
             output.append(f"‧ {place + 1}: `{member.name.strip('@')}`")
         return f'{os.linesep.join(output)}'
+
+    @staticmethod
+    def queue_went_active(queue) -> bool:
+        """
+        This method works as help_queue_went_active but for
+        the demonstration queue.
+        """
+        if not queue in HelpQueueFeature.QUEUE_STATES:
+            HelpQueueFeature.QUEUE_STATES[queue] = queue.qsize()
+            changed = False
+        elif HelpQueueFeature.QUEUE_STATES[queue] == 0 and queue.qsize() > 0:
+            changed = True
+        else:
+            changed = False
+
+        HelpQueueFeature.QUEUE_STATES[queue] = queue.qsize()
+        return changed
+
+    def get_notification_if_helpqueue_changed(self):
         """
         This method returns a phrase if the queue size went
         from 0 to 1 in size since last call. It can be
@@ -130,9 +151,24 @@ class HelpQueueFeature(ci.FeatureBase):
         :returns:
             str
         """
-        if self.latest_queue_state == 0 and self.help_queue.qsize() == 1:
+        if HelpQueueFeature.queue_went_active(self.help_queue):
             return ':warning: Hjälplistan är aktiv'
-        self.latest_queue_state = self.help_queue.qsize()    @logger
+        return None
+
+    def get_notification_if_demonstration_queue_changed(self):
+        """
+        This method returns a phrase if the queue size went
+        from 0 to 1 in size since last call. It can be
+        used to call it continuously and get the phrase back
+        only when the queue has been emptied but then reactivated 
+        by someone signing up for help.
+        :returns:
+            str
+        """
+        if HelpQueueFeature.queue_went_active(self.demonstration_queue):
+            return ':warning: Presentationslistan är aktiv'
+        return None
+
     @logger
     def demonstrate_enqueue(self, message: discord.Message) -> str:
         """
