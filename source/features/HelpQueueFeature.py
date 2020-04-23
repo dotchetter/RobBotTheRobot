@@ -15,7 +15,9 @@ class HelpQueueFeature(ci.FeatureBase):
     FEATURE_KEYWORDS = (
         'hjälp',
         'help',
-        'visa'
+        'visa',
+        'jag',
+        'redovisa'
     )
 
     QUEUE_STATES = {}
