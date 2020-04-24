@@ -35,6 +35,14 @@ The initial purpose was to inform us in the chat every morning which classroom w
 * Ranking
 
   Rank one another up or down, just for goofing around really.
+  
+* Help and Presentation queues for teachers and students
+  In the wake of a pandemic, all of us are working and studying from home. This poses new challenges for teachers and
+  students, where something as simple as asking for help after class is hard to deliver in a just manner. People call and 
+  text the teacher, and the loudest one usually triumphs. It's also hard for the teacher to remember who asked for help
+  first. The Help queue feature, now also with presentations, allows students to sign up to a queue which the chatbot manages, 
+  and the teacher to pop it withsimple commands. This ensures just and easy help lists which is great both for the teacher and the   
+  students. 
 
 ## Mentions
 
