@@ -51,11 +51,6 @@ class RobBotClient(discord.Client):
                 method = helpqueue_ft.get_notification_if_helpqueue_changed, 
                 role = 'teacher'))
         
-        self.loop.create_task(
-            self.send_to_role(
-                method = helpqueue_ft.get_notification_if_demonstration_queue_changed, 
-                role = 'teacher'))
-        
         self._guild = kwargs['DISCORD_GUILD']
     
     @property

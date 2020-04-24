@@ -24,9 +24,6 @@ class HelpQueueFeature(ci.FeatureBase):
 
     def __init__(self, *args, **kwargs):
         self.help_queue = Queue()
-        self.demonstration_queue = Queue()
-
-
         self.command_parser = HelpQueueFeatureCommandParser()
         self.command_parser.keywords = HelpQueueFeature.FEATURE_KEYWORDS
         
@@ -37,21 +34,16 @@ class HelpQueueFeature(ci.FeatureBase):
         
         self.command_parser.callbacks = {
             str({'visa': ('kö', 'kön', 'hjälp')}): lambda: self.list_help_queue(),
-            str({'visa': ('redovisning', 'redovisa')}): lambda: self.list_demonstration_queue(),
             str({'hjälp': ('mig',)}): self.enqueue,
             str({'help': ('mig', 'me')}): self.enqueue,
             str({'hjälp': ('nästa', 'next')}): self.dequeue,
-            str({'jag': ('redovisa',)}): self.demonstrate_enqueue,
-            str({'redovisa': ('nästa', 'next')}): self.demonstrate_dequeue,
             'hjälp': self.enqueue,
-            'redovisa': self.demonstrate_enqueue
+            'redovisa': self.enqueue
         }
 
         self.command_parser.interactive_methods = (
             self.enqueue,
             self.dequeue,
-            self.demonstrate_enqueue,
-            self.demonstrate_dequeue
         )
 
         super().__init__(
@@ -112,20 +104,6 @@ class HelpQueueFeature(ci.FeatureBase):
             output.append(f"‧ {place + 1}: `{member.name.strip('@')}`")
         return f'{os.linesep.join(output)}'
 
-    @logger
-    def list_demonstration_queue(self) -> str:
-        """
-        Returns a concatenated string with all the members in 
-        demonstration queue, with their place in the queue as 
-        leading digit.
-        """
-        output = []
-        if not self.demonstration_queue.queue:
-            return 'Listan för redovisningar är tom'
-        for place, member in enumerate(self.demonstration_queue.queue):
-            output.append(f"‧ {place + 1}: `{member.name.strip('@')}`")
-        return f'{os.linesep.join(output)}'
-
     @staticmethod
     def queue_went_active(queue) -> bool:
         """
@@ -156,57 +134,3 @@ class HelpQueueFeature(ci.FeatureBase):
         if HelpQueueFeature.queue_went_active(self.help_queue):
             return ':warning: Hjälplistan är aktiv'
         return None
-
-    def get_notification_if_demonstration_queue_changed(self):
-        """
-        This method returns a phrase if the queue size went
-        from 0 to 1 in size since last call. It can be
-        used to call it continuously and get the phrase back
-        only when the queue has been emptied but then reactivated 
-        by someone signing up for help.
-        :returns:
-            str
-        """
-        if HelpQueueFeature.queue_went_active(self.demonstration_queue):
-            return ':warning: Presentationslistan är aktiv'
-        return None
-
-    @logger
-    def demonstrate_enqueue(self, message: discord.Message) -> str:
-        """
-        When this method is called, the author of any
-        given parameter message is enqueued into the 
-        demonstration queue, held separeate from the
-        help queue structure.
-        :param message:
-            discord.Message object from chat
-        :returns:
-            str
-        """
-        for n, i in enumerate(self.demonstration_queue.queue):
-            if i == message.author: 
-                return f'{message.author.mention} du står redan i kön på plats {n + 1}'
-        self.demonstration_queue.put(message.author)
-        return f'{message.author.mention} skrevs upp. Du har plats {self.demonstration_queue.qsize()}'
-
-    @logger
-    def demonstrate_dequeue(self, message: discord.Message) -> str:
-        """
-        This method dequeues the next user in line
-        for presenting their work to the teacher. 
-        Dequeing is limited to members with the 
-        "teacher" role only, this is checked first before
-        dequeueing.
-        :param message:
-            discord.Message, the whole message object
-            from the chat application
-        """
-        if not self.demonstration_queue.qsize():
-            return 'Listan för presentationer är tom'
-
-        try:
-            if len([i for i in message.author.roles if i.name == 'teacher']):
-                return f'Näst på kö för att presentera är {self.demonstration_queue.get().mention}'
-        except AttributeError:
-            return f'Du kan bara använda detta kommando i en av kanalerna, inte i PM'
-        return f'{message.author.mention}, du saknar behörighet för detta'
