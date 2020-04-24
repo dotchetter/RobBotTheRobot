@@ -42,7 +42,7 @@ The initial purpose was to inform us in the chat every morning which classroom w
   students, where something as simple as asking for help after class is hard to deliver in a just manner. People call and 
   text the teacher, and the loudest one usually triumphs. It's also hard for the teacher to remember who asked for help
   first. The Help queue feature, now also with presentations, allows students to sign up to a queue which the chatbot manages, 
-  and the teacher to pop it withsimple commands. This ensures just and easy help lists which is great both for the teacher and the   
+  and the teacher to pop it with simple commands. This ensures just and easy help lists which is great both for the teacher and the   
   students. 
 
 ## Mentions
